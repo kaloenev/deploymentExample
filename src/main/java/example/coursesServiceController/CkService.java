@@ -8,7 +8,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class CService {
+public class CkService {
     public FilterResponse getSubjectGrade() {
         List<String> subjects = new ArrayList<>();
         for (Subject subject : Subject.values()) {

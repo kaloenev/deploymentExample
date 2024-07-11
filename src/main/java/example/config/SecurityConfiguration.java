@@ -10,17 +10,18 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-@Configuration
+
 @EnableWebSecurity
-@RequiredArgsConstructor
-@EnableMethodSecurity
-//@EnableWebMvc
+@Configuration
 public class SecurityConfiguration {
 //    private final AuthenticationProvider authenticationProvider;
 
@@ -28,10 +29,16 @@ public class SecurityConfiguration {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .cors()
+                .and()
                 .authorizeHttpRequests()
-                .requestMatchers("/api/v1/**")
-                .permitAll().and()
+                .requestMatchers("/demo/**")
+                .permitAll()
+                .requestMatchers("/security/**")
+                .authenticated()
+                .and()
+                .httpBasic()
+                .and()
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 //                .and()
@@ -55,14 +62,22 @@ public class SecurityConfiguration {
         configuration.addAllowedOrigin("ws://localhost:3002");
         configuration.addAllowedOrigin("ws://localhost:3000");
         configuration.addAllowedOrigin("http://maistori-na-znanieto.com");
-        configuration.addAllowedOrigin("*");
-        configuration.addAllowedMethod("*");
-        configuration.addAllowedHeader("*");
+        configuration.addAllowedOrigin("http://localhost:8080");
         configuration.setAllowCredentials(true);
         configuration.addExposedHeader("Content-Disposition");
         UrlBasedCorsConfigurationSource source = new
                 UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
+    }
+
+    @Bean
+    public InMemoryUserDetailsManager userDetailsService() {
+        UserDetails user = User.withDefaultPasswordEncoder()
+                .username("admin")
+                .password("1234")
+                .roles("ADMIN")
+                .build();
+        return new InMemoryUserDetailsManager(user);
     }
 }

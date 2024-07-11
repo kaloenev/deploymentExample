@@ -30,7 +30,6 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/demo/api/v1/users")
 @RequiredArgsConstructor
-@CrossOrigin
 public class UserController {
     private final UserService userService;
 
